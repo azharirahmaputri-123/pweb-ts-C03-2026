@@ -163,6 +163,120 @@ section h3 {
     gap: 1rem;
 }
 
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.op-pengguna {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.btn-sekunder {
+    background-color: var(--white);
+    border: 1px solid #cbd5e0;
+}
+
+.btn-sekunder:disabled,
+.btn-panggil:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+}
+
+.op-kepala {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0.75rem;
+}
+
+.op-judul {
+    font-size: 1.1rem;
+}
+
+.op-badge {
+    margin-left: 0.5rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    background: #fed7d7;
+    color: #742a2a;
+}
+
+.op-menunggu {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+
+.op-isi {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.op-blok {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.op-label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.op-nomor {
+    font-size: 2rem;
+    line-height: 1.1;
+    color: var(--warning);
+    font-variant-numeric: tabular-nums;
+}
+
+.op-keterangan {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.op-aksi {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 0.5rem;
+}
+
+.btn-panggil {
+    background-color: var(--warning);
+    color: var(--white);
+    padding: 0.65rem 1rem;
+}
+
+.btn-tautan {
+    align-self: flex-start;
+    background: none;
+    padding: 0;
+    font-weight: 500;
+    font-size: 0.85rem;
+    text-decoration: underline;
+}
+
+.op-info {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+button:focus-visible {
+    outline: 2px solid var(--text-dark);
+    outline-offset: 2px;
+}
+
+@media (max-width: 480px) {
+    .op-aksi { grid-template-columns: 1fr 1fr; }
+    .btn-panggil { grid-column: 1 / -1; }
+}
+
 /* ==========================================
    4. LAYAR ANTRIAN & 5. KIOSK (layar.html & ambil-antrian.html)
    ========================================== */

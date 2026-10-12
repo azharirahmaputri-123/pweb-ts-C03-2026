@@ -6,8 +6,20 @@ interface LoginResponse {
     lastName: string;
     gender: string;
     image: string;
-    token: string;
-    role?: string; 
+    accessToken: string;
+    message?: string;
+}
+
+interface MeResponse {
+    role: string;
+}
+
+function redirectByRole(role: string): void {
+    if (role === "admin" || role === "moderator") {
+        window.location.href = "index.html";
+    } else {
+        window.location.href = "operator.html";
+    }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -29,9 +41,10 @@ document.addEventListener("DOMContentLoaded", () => {
     
     // Jika sudah login, langsung lempar ke halaman admin
     const token = localStorage.getItem("accessToken");
-    const role = localStorage.getItem("userRole");
-    if (token && (role === "admin" || role === "moderator" || role === "operator")) {
-        window.location.href = "index.html";
+    const savedRole = localStorage.getItem("userRole");
+    if (token && savedRole) {
+        redirectByRole(savedRole);
+        return;
     }
 
     loginForm.addEventListener("submit", async (e: Event) => {
@@ -61,35 +74,37 @@ document.addEventListener("DOMContentLoaded", () => {
                 }),
             });
 
-            const data = await response.json();
+            const data: LoginResponse = await response.json();
 
             if (!response.ok) {
                 throw new Error(data.message || "Gagal melakukan login. Periksa kembali username/password.");
             }
 
-            // Simpan data sesi ke Local Storage
-            localStorage.setItem("accessToken", data.token);
-            localStorage.setItem("firstName", data.firstName || username);
-            
-            // Simulasi penentuan role: jika dummyjson tidak kirim role, set default 'admin' untuk testing
-            // Ketentuan: Role moderator disamakan hak aksesnya dengan admin
-            let assignedRole = data.role ? data.role.toLowerCase() : "admin";
-            if (assignedRole === "moderator") {
-                assignedRole = "admin";
+            const meRes = await fetch("https://dummyjson.com/auth/me", {
+                headers: { Authorization: `Bearer ${data.accessToken}` },
+            });
+            if (!meRes.ok) {
+                throw new Error("Gagal mengambil data pengguna.");
             }
-            localStorage.setItem("userRole", assignedRole);
+            const me: MeResponse = await meRes.json();
+            if (!me.role) {
+                throw new Error("Role pengguna tidak ditemukan.");
+            }
 
-            // Redirect berdasarkan role
-            if (assignedRole === "admin") {
-                window.location.href = "index.html";
-            } else if (assignedRole === "operator") {
-                window.location.href = "operator.html";
+            localStorage.setItem("accessToken", data.accessToken);
+            localStorage.setItem("firstName", data.firstName);
+            localStorage.setItem("userRole", me.role);
+
+            redirectByRole(me.role);
+
+        } catch (error: unknown) {
+            if (error instanceof TypeError) {
+                errorMessage.textContent = "Koneksi jaringan gagal. Periksa internet.";
+            } else if (error instanceof Error) {
+                errorMessage.textContent = error.message;
             } else {
-                window.location.href = "layar.html";
+                errorMessage.textContent = "Terjadi kesalahan.";
             }
-
-        } catch (error: any) {
-            errorMessage.textContent = error.message || "Terjadi kesalahan jaringan.";
             loginBtn.textContent = "Masuk";
             loginBtn.removeAttribute("disabled");
         }

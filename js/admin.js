@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const logoutBtn = document.getElementById("logout-btn");
     if (logoutBtn) {
         logoutBtn.addEventListener("click", () => {
-            localStorage.clear();
+            ["accessToken", "userRole", "firstName"].forEach(k => localStorage.removeItem(k));
             window.location.href = "login.html";
         });
     }
@@ -61,7 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
             itemDiv.style.cssText = "display: flex; justify-content: space-between; align-items: center; background: white; padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid #cbd5e0;";
             itemDiv.innerHTML = `
                 <div>
-                    <strong>${layanan.nama}</strong> [${layanan.kode}] 
+                    <strong>${esc(layanan.nama)}</strong> [${layanan.kode}] 
                     <span style="font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; background: ${layanan.aktif ? '#c6f6d5' : '#fed7d7'}; color: ${layanan.aktif ? '#22543d' : '#742a2a'};">
                         ${layanan.aktif ? 'Aktif' : 'Nonaktif'}
                     </span>
@@ -114,14 +114,15 @@ document.addEventListener("DOMContentLoaded", () => {
         e.preventDefault();
         const kode = kodeInput.value.toUpperCase().trim();
         const nama = namaInput.value.trim();
-        if (!kode || kode.length !== 1) {
-            alert("Kode layanan harus persis 1 huruf kapital!");
+        if (!/^[A-Z]$/.test(kode)) {
+            alert("Kode layanan harus persis 1 huruf kapital (A-Z)!");
             return;
         }
         // Validasi Duplikasi Case-Insensitive
-        const isDuplicate = daftarLayanan.some(l => l.kode.toUpperCase() === kode);
+        const isDuplicate = daftarLayanan.some(l => l.kode.toUpperCase() === kode ||
+            l.nama.toLowerCase() === nama.toLowerCase());
         if (isDuplicate) {
-            alert(`Kode layanan "${kode}" sudah terdaftar! Gunakan kode lain.`);
+            alert("Kode atau nama layanan sudah terdaftar! Gunakan yang lain.");
             return;
         }
         const newLayanan = {
@@ -156,9 +157,13 @@ document.addEventListener("DOMContentLoaded", () => {
     tiketManualForm.addEventListener("submit", (e) => {
         e.preventDefault();
         const kodeLayanan = selectLayanan.value;
-        const prioritas = selectPrioritas.value;
         if (!kodeLayanan) {
             alert("Silakan pilih layanan terlebih dahulu!");
+            return;
+        }
+        const prioritas = selectPrioritas.value;
+        if (!isPrioritas(prioritas)) {
+            alert("Prioritas tidak valid!");
             return;
         }
         // Hitung nomor urut berikutnya berdasarkan kode layanan

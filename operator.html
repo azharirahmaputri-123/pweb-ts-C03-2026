@@ -9,13 +9,18 @@
 <body>
     <header class="navbar">
         <h2>Panel Operator</h2>
+        <div class="user-info">
+            <span id="operator-name" class="op-pengguna"></span>
+            <button id="suara-btn" type="button" class="btn-sekunder" aria-pressed="true">Suara: Aktif</button>
         <button id="logout-btn">Keluar</button>
+        </div>
     </header>
 
     <main id="operator-panels-container">
         <!-- Kartu Operator per Layanan -->
     </main>
 
+    <script src="js/queue.js" defer></script>
     <script src="js/operator.js" defer></script>
 </body>
 </html>
