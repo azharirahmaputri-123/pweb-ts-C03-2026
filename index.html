@@ -10,20 +10,67 @@
     <header class="navbar">
         <h2>Dashboard Admin</h2>
         <div class="user-info">
-            <span id="admin-name">Admin</span>
+            <span id="admin-name" style="margin-right: 1rem; font-weight: 600;">Admin</span>
             <button id="logout-btn">Keluar</button>
         </div>
     </header>
 
     <main class="admin-grid">
+        <!-- Bagian 1: Manajemen Jenis Antrian (CRUD) -->
         <section id="jenis-antrian-section">
-            <h3>Jenis Antrian</h3>
-            <!-- Form & List CRUD Jenis Antrian -->
+            <h3>Manajemen Layanan (CRUD)</h3>
+            <form id="layanan-form">
+                <div>
+                    <label for="kode-layanan">Kode (1 Huruf Kapital)</label>
+                    <input type="text" id="kode-layanan" maxlength="1" placeholder="C" style="text-transform: uppercase;" required>
+                </div>
+                <div>
+                    <label for="nama-layanan">Nama Layanan</label>
+                    <input type="text" id="nama-layanan" placeholder="Contoh: Poli Gigi" required>
+                </div>
+                <button type="submit" id="save-layanan-btn">Tambah Layanan</button>
+            </form>
+
+            <div style="margin-top: 1.5rem;">
+                <h4>Daftar Layanan Aktif</h4>
+                <div id="list-layanan-container" style="margin-top: 0.75rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                    <!-- Render list via TypeScript -->
+                </div>
+            </div>
+            
+            <div style="margin-top: 2rem; border-top: 1px dashed var(--accent-peach); padding-top: 1rem;">
+                <button type="button" id="reset-all-btn" style="background-color: var(--danger); color: white; width: 100%;">Reset Seluruh Antrian</button>
+            </div>
         </section>
 
+        <!-- Bagian 2: Terbitkan Tiket Manual & Monitoring Singkat -->
         <section id="terbitkan-tiket-section">
             <h3>Terbitkan Tiket Manual</h3>
-            <!-- Form Terbitkan Tiket -->
+            <form id="tiket-manual-form">
+                <div>
+                    <label for="select-layanan">Pilih Layanan</label>
+                    <select id="select-layanan" required>
+                        <option value="">-- Pilih Layanan --</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="select-prioritas">Prioritas</label>
+                    <select id="select-prioritas" required>
+                        <option value="Normal">Normal</option>
+                        <option value="Lansia">Lansia</option>
+                        <option value="Disabilitas">Disabilitas</option>
+                        <option value="VIP">VIP</option>
+                    </select>
+                </div>
+                <button type="submit" id="terbitkan-btn">Terbitkan Tiket</button>
+            </form>
+
+            <div style="margin-top: 1.5rem;">
+                <h4>Daftar Tiket Aktif</h4>
+                <div id="list-tiket-container" style="max-height: 220px; overflow-y: auto; margin-top: 0.75rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                    <!-- Render tiket via TypeScript -->
+                </div>
+            </div>
         </section>
     </main>
 
