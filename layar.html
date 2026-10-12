@@ -8,11 +8,15 @@
 </head>
 <body>
     <header class="public-header">
-        <h1>Nomor sedang dipanggil</h1>
+        <div class="header-info">
+            <h1>Nomor sedang dipanggil</h1>
+            <p id="timestamp-info" class="timestamp-text">Diperbarui --.--.--</p>
+        </div>
         <div class="nav-links">
             <a href="layar.html" class="active">Layar Antrian</a>
             <a href="ambil-antrian.html">Ambil Nomor</a>
-            <button id="fullscreen-btn">Layar Penuh</button>
+            <button id="fullscreen-btn" type="button">Layar Penuh</button>
+            <a href="login.html" class="nav-staff-link" title="Masuk Staf/Admin">Akses Staf</a>
         </div>
     </header>
 
@@ -20,6 +24,7 @@
         <!-- Kartu Monitor Publik per Jenis Antrian -->
     </main>
 
+    <script src="js/queue.js" defer></script>
     <script src="js/layar.js" defer></script>
 </body>
 </html>

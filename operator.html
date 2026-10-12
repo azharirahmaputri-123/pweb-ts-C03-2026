@@ -8,11 +8,16 @@
 </head>
 <body>
     <header class="navbar">
-        <h2>Panel Operator</h2>
+        <div style="display: flex; align-items: center; gap: 1.25rem;">
+            <h2>Panel Operator</h2>
+            <nav class="admin-quick-nav">
+                <a href="layar.html" target="_blank" title="Buka Layar Monitor Antrian">Pantau Layar Monitor</a>
+            </nav>
+        </div>
         <div class="user-info">
             <span id="operator-name" class="op-pengguna"></span>
             <button id="suara-btn" type="button" class="btn-sekunder" aria-pressed="true">Suara: Aktif</button>
-        <button id="logout-btn">Keluar</button>
+            <button id="logout-btn">Keluar</button>
         </div>
     </header>
 

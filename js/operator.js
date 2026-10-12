@@ -65,8 +65,8 @@ document.addEventListener("DOMContentLoaded", () => {
             el.textContent = teks;
         return el;
     }
-    function buatBlokNomor(label, nomor, keterangan) {
-        const blok = buatEl("div", "op-blok");
+    function buatBlokNomor(label, nomor, keterangan, isHighlight = false) {
+        const blok = buatEl("div", `op-blok ${isHighlight ? "blok-dipanggil" : ""}`);
         blok.appendChild(buatEl("span", "op-label", label));
         blok.appendChild(buatEl("strong", "op-nomor", nomor));
         if (keterangan)
@@ -86,15 +86,15 @@ document.addEventListener("DOMContentLoaded", () => {
         const menunggu = jumlahMenunggu(layanan.kode, semua);
         const kartu = buatEl("article", "operator-card");
         const kepala = buatEl("header", "op-kepala");
-        const judul = buatEl("h3", "op-judul", layanan.nama);
+        const judul = buatEl("h3", "op-judul", `${layanan.nama} [${layanan.kode}]`);
         if (!layanan.aktif)
             judul.appendChild(buatEl("span", "op-badge", "Nonaktif"));
         kepala.appendChild(judul);
         kepala.appendChild(buatEl("span", "op-menunggu", `${menunggu} menunggu`));
         kartu.appendChild(kepala);
         const isi = buatEl("div", "op-isi");
-        isi.appendChild(buatBlokNomor("Sedang dipanggil", dipanggil ? dipanggil.nomorTampil : "-"));
-        isi.appendChild(buatBlokNomor("Berikutnya", berikut ? berikut.nomorTampil : "-", berikut ? `Prioritas ${berikut.prioritas}` : undefined));
+        isi.appendChild(buatBlokNomor("Sedang dipanggil", dipanggil ? dipanggil.nomorTampil : "-", dipanggil ? "Sedang melayani" : "Belum ada panggilan", dipanggil !== null));
+        isi.appendChild(buatBlokNomor("Berikutnya", berikut ? berikut.nomorTampil : "-", berikut ? `Prioritas: ${berikut.prioritas}` : "Antrian kosong", false));
         kartu.appendChild(isi);
         const aksi = buatEl("div", "op-aksi");
         aksi.appendChild(buatTombol("Panggil Berikutnya", "btn-panggil", berikut !== null, () => {
@@ -113,7 +113,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }));
         kartu.appendChild(aksi);
         if (dipanggil) {
-            const ulang = buatTombol("Ulangi panggilan", "btn-tautan", true, () => {
+            const ulang = buatTombol("Ulangi Panggilan Suara", "btn-tautan", true, () => {
                 umumkan(dipanggil, layanan.nama);
             });
             kartu.appendChild(ulang);

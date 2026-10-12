@@ -7,21 +7,64 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <main class="login-container">
-        <h1>Masuk</h1>
-        <form id="login-form">
-            <label for="username">Username</label>
-            <input type="text" id="username" required autocomplete="username">
-
-            <label for="password">Password</label>
-            <div style="position: relative; display: flex; align-items: center;">
-                <input type="password" id="password" placeholder="Contoh: emilyspass" required autocomplete="current-password" style="margin-bottom: 1rem; padding-right: 2.5rem;">
-                <button type="button" id="toggle-password-btn" style="position: absolute; right: 10px; top: 35%; transform: translateY(-50%); background: transparent; border: none; cursor: pointer; font-size: 1rem; color: var(--text-dark); padding: 0;">👁️</button>
+    <div class="login-page-wrapper">
+        <main class="login-container">
+            <div class="login-header-group">
+                <div class="login-brand-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary-peach);">
+                        <path d="M12 5v14M5 12h14"/>
+                    </svg>
+                </div>
+                <h1>Masuk Sistem</h1>
+                <p class="login-subtitle">Halaman ini untuk mengakses Dashboard Admin dan Panel Operator. Layar Kiosk dan Monitor Antrian dapat diakses langsung tanpa login.</p>
             </div>
-            <button type="submit" id="login-btn">Masuk</button>
-        </form>
-        <p id="error-message" class="error"></p>
-    </main>
+            <form id="login-form">
+                <div>
+                    <label for="username">Username</label>
+                    <input type="text" id="username" placeholder="Masukkan username" required autocomplete="username">
+                </div>
+
+                <div>
+                    <label for="password">Password</label>
+                    <div style="position: relative; display: flex; align-items: center;">
+                        <input type="password" id="password" placeholder="Masukkan kata sandi" required autocomplete="current-password" style="padding-right: 4.5rem;">
+                        <button type="button" id="toggle-password-btn" style="position: absolute; right: 10px; top: 38%; transform: translateY(-50%); background: transparent; border: none; cursor: pointer; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); padding: 4px; box-shadow: none;">Lihat</button>
+                    </div>
+                </div>
+
+                <button type="submit" id="login-btn">Masuk ke Sistem</button>
+            </form>
+            <p id="error-message" class="error"></p>
+            
+            <div class="login-security-note">
+                Akses sistem terbatas untuk staf medis dan administrator berwenang.
+            </div>
+
+            <details class="demo-acc-details">
+                <summary>Petunjuk Referensi Pengujian API</summary>
+                <p>Otentikasi terintegrasi dengan <a href="https://dummyjson.com/users" target="_blank" rel="noopener">DummyJSON Auth Service</a>.</p>
+            </details>
+
+            <!-- Portal Cepat Akses Publik (Tanpa Login) -->
+            <div class="public-portal-box">
+                <p class="public-portal-title">Akses Layanan Publik (Tanpa Perlu Login):</p>
+                <div class="public-portal-links">
+                    <a href="ambil-antrian.html" class="portal-btn">
+                        <div>
+                            <strong>Ambil Antrian</strong>
+                            <small>Mesin Kiosk Pasien</small>
+                        </div>
+                    </a>
+                    <a href="layar.html" class="portal-btn">
+                        <div>
+                            <strong>Layar Monitor</strong>
+                            <small>Display Ruang Tunggu</small>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </main>
+    </div>
 
     <!-- Script JS disesuaikan ke folder js/ -->
     <script src="js/login.js" defer></script>

@@ -1,12 +1,102 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // --- 1. AUTH & ROLE GUARD ---
+    // --- 1. AUTH & ROLE GUARD DENGAN POP-UP MODAL ELEGAN ---
     const token = localStorage.getItem("accessToken");
     const role = localStorage.getItem("userRole");
 
     if (!token || (role !== "admin" && role !== "moderator")) {
-        alert("Akses ditolak! Anda harus login sebagai Admin.");
-        window.location.href = "login.html";
+        tampilkanModalAksesDitolak(token, role);
         return;
+    }
+
+    function tampilkanModalAksesDitolak(authToken: string | null, userRole: string | null): void {
+        // Sembunyikan konten admin dan navbar agar data terlindungi dari pengguna yang tidak berhak
+        const adminGrid = document.querySelector(".admin-grid") as HTMLElement | null;
+        if (adminGrid) adminGrid.style.display = "none";
+        const navbar = document.querySelector(".navbar") as HTMLElement | null;
+        if (navbar) navbar.style.display = "none";
+
+        let alasan = "Sesi login Anda tidak ditemukan atau telah kedaluwarsa.";
+        let subteks = "Anda harus masuk dengan kredensial Administrator atau Moderator untuk mengelola sistem antrian.";
+        const isOperator = !!authToken && userRole === "user";
+
+        if (authToken && userRole) {
+            alasan = `Akun Anda terdaftar dengan hak akses "${userRole.toUpperCase()}".`;
+            subteks = "Halaman Dashboard Admin hanya dapat diakses oleh Administrator atau Moderator Rumah Sakit.";
+        }
+
+        const overlay = document.createElement("div");
+        overlay.className = "auth-modal-overlay";
+        overlay.id = "auth-modal-denied";
+        overlay.setAttribute("role", "alertdialog");
+        overlay.setAttribute("aria-modal", "true");
+
+        let sisaWaktu = 3;
+
+        overlay.innerHTML = `
+            <div class="auth-modal-card">
+                <div class="auth-modal-icon-badge" aria-hidden="true">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                </div>
+                <span class="auth-modal-pill">Autentikasi Diperlukan</span>
+                <h2 class="auth-modal-title">Akses Ditolak</h2>
+                <p class="auth-modal-desc">${esc(alasan)}</p>
+                <p class="auth-modal-subdesc">${esc(subteks)}</p>
+
+                <div class="auth-modal-countdown-box">
+                    <div class="auth-modal-countdown-label">
+                        <span>Mengalihkan otomatis ke login</span>
+                        <strong id="auth-countdown-sec">${sisaWaktu} detik</strong>
+                    </div>
+                    <div class="auth-countdown-track">
+                        <div class="auth-countdown-bar"></div>
+                    </div>
+                </div>
+
+                <div class="auth-modal-actions">
+                    <button type="button" id="btn-auth-redirect-login" class="btn-auth-redirect">
+                        Ke Halaman Login Sekarang
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                    </button>
+                    ${isOperator ? `
+                    <a href="operator.html" class="btn-auth-secondary">
+                        Buka Panel Operator
+                    </a>
+                    ` : ""}
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(overlay);
+
+        const redirectKeLogin = () => {
+            window.location.href = "login.html";
+        };
+
+        const countdownEl = document.getElementById("auth-countdown-sec");
+        const timerId = window.setInterval(() => {
+            sisaWaktu--;
+            if (countdownEl) {
+                countdownEl.textContent = `${sisaWaktu} detik`;
+            }
+            if (sisaWaktu <= 0) {
+                clearInterval(timerId);
+                redirectKeLogin();
+            }
+        }, 1000);
+
+        const btnRedirect = document.getElementById("btn-auth-redirect-login");
+        if (btnRedirect) {
+            btnRedirect.addEventListener("click", () => {
+                clearInterval(timerId);
+                redirectKeLogin();
+            });
+        }
     }
 
     // Tampilkan nama admin di navbar
@@ -25,21 +115,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // --- 2. STATE & LOCALSTORAGE INITIALIZER ---
-    let daftarLayanan: Layanan[] = JSON.parse(localStorage.getItem("daftarLayanan") || "[]");
-    let daftarTiket: Tiket[] = JSON.parse(localStorage.getItem("daftarTiket") || "[]");
-
-    // Default data awal jika kosong agar mudah diuji
-    if (daftarLayanan.length === 0) {
-        daftarLayanan = [
-            { id: "1", kode: "A", nama: "Poli Umum", aktif: true },
-            { id: "2", kode: "B", nama: "Poli Anak", aktif: true },
-            { id: "3", kode: "G", nama: "Poli Gigi", aktif: true }
-        ];
-        localStorage.setItem("daftarLayanan", JSON.stringify(daftarLayanan));
-    }
-
-    // --- 3. DOM ELEMENTS ---
+    // --- 2. DOM ELEMENTS ---
     const layananForm = document.getElementById("layanan-form") as HTMLFormElement;
     const kodeInput = document.getElementById("kode-layanan") as HTMLInputElement;
     const namaInput = document.getElementById("nama-layanan") as HTMLInputElement;
@@ -51,9 +127,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const selectPrioritas = document.getElementById("select-prioritas") as HTMLSelectElement;
     const listTiketContainer = document.getElementById("list-tiket-container") as HTMLElement;
 
-    // --- 4. RENDER FUNCTIONS ---
-    function renderLayanan() {
+    // --- 3. RENDER FUNCTIONS ---
+    function renderLayanan(): void {
+        const daftarLayanan = bacaLayanan();
         listLayananContainer.innerHTML = "";
+        
+        // Pertahankan nilai select yang sedang dipilih admin jika ada
+        const nilaiTerpilih = selectLayanan.value;
         selectLayanan.innerHTML = '<option value="">-- Pilih Layanan --</option>';
 
         daftarLayanan.forEach((layanan) => {
@@ -66,26 +146,31 @@ document.addEventListener("DOMContentLoaded", () => {
 
             // Render list item CRUD
             const itemDiv = document.createElement("div");
-            itemDiv.style.cssText = "display: flex; justify-content: space-between; align-items: center; background: white; padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid #cbd5e0;";
+            itemDiv.className = "crud-item";
 
             itemDiv.innerHTML = `
-                <div>
-                    <strong>${esc(layanan.nama)}</strong> [${layanan.kode}] 
-                    <span style="font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; background: ${layanan.aktif ? '#c6f6d5' : '#fed7d7'}; color: ${layanan.aktif ? '#22543d' : '#742a2a'};">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <strong>${esc(layanan.nama)}</strong>
+                    <span class="badge-prioritas">[${esc(layanan.kode)}]</span> 
+                    <span class="badge-status ${layanan.aktif ? 'badge-aktif' : 'badge-nonaktif'}">
                         ${layanan.aktif ? 'Aktif' : 'Nonaktif'}
                     </span>
                 </div>
-                <div style="display: flex; gap: 0.25rem;">
-                    <button type="button" data-id="${layanan.id}" class="toggle-btn" style="background: #edf2f7; color: #2d3748; padding: 0.25rem 0.5rem; font-size: 0.75rem;">
+                <div style="display: flex; gap: 0.35rem;">
+                    <button type="button" data-id="${esc(layanan.id)}" class="toggle-btn btn-sekunder" style="padding: 0.25rem 0.6rem; font-size: 0.75rem; box-shadow: none;">
                         ${layanan.aktif ? 'Nonaktifkan' : 'Aktifkan'}
                     </button>
-                    <button type="button" data-id="${layanan.id}" class="delete-btn" style="background: var(--danger); color: white; padding: 0.25rem 0.5rem; font-size: 0.75rem;">
+                    <button type="button" data-id="${esc(layanan.id)}" class="delete-btn" style="background-color: var(--danger); color: white; padding: 0.25rem 0.6rem; font-size: 0.75rem; box-shadow: none;">
                         Hapus
                     </button>
                 </div>
             `;
             listLayananContainer.appendChild(itemDiv);
         });
+
+        if (nilaiTerpilih) {
+            selectLayanan.value = nilaiTerpilih;
+        }
 
         // Attach Event Listeners for Dynamic Buttons
         document.querySelectorAll(".toggle-btn").forEach(btn => {
@@ -103,45 +188,82 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    function renderTiket() {
+    function renderTiket(): void {
+        const daftarTiket = bacaTiket();
         listTiketContainer.innerHTML = "";
         if (daftarTiket.length === 0) {
-            listTiketContainer.innerHTML = `<p style="font-size: 0.85rem; color: var(--text-muted); text-align: center;">Belum ada tiket aktif.</p>`;
+            listTiketContainer.innerHTML = `<p style="font-size: 0.85rem; color: var(--text-muted); text-align: center; padding: 1rem 0;">Belum ada tiket aktif.</p>`;
             return;
         }
 
+        // Tampilkan 10 tiket terbaru
         daftarTiket.slice(-10).reverse().forEach(tiket => {
             const ticketDiv = document.createElement("div");
-            ticketDiv.style.cssText = "display: flex; justify-content: space-between; align-items: center; background: white; padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid #cbd5e0; font-size: 0.9rem;";
+            ticketDiv.className = "crud-item";
+
+            let statusClass = "tiket-status-menunggu";
+            if (tiket.status === "Dipanggil") statusClass = "tiket-status-dipanggil";
+            else if (tiket.status === "Selesai") statusClass = "tiket-status-selesai";
+            else if (tiket.status === "Lewati") statusClass = "tiket-status-lewati";
 
             ticketDiv.innerHTML = `
-                <div>
-                    <strong>${tiket.nomorTampil}</strong> - <span style="font-size: 0.8rem; color: var(--text-muted);">${tiket.prioritas}</span>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <strong style="font-size: 0.95rem; font-variant-numeric: tabular-nums;">${esc(tiket.nomorTampil)}</strong>
+                    <span class="badge-prioritas">${esc(tiket.prioritas)}</span>
+                    <span style="font-size: 0.75rem; color: var(--text-muted);">${esc(tiket.waktu)}</span>
                 </div>
-                <span style="font-size: 0.75rem; font-weight: 600; color: #2b6cb0;">${tiket.status}</span>
+                <span class="badge-tiket-status ${statusClass}">${esc(tiket.status)}</span>
             `;
             listTiketContainer.appendChild(ticketDiv);
         });
     }
 
-    // --- 5. CRUD LOGIC & VALIDATION ---
-    layananForm.addEventListener("submit", (e) => {
+    // --- 3.5. CUSTOM TOAST NOTIFICATION (BONUS UI/UX) ---
+    function tampilkanToast(pesan: string, tipe: "sukses" | "error" | "peringatan" = "sukses"): void {
+        let container = document.getElementById("toast-container");
+        if (!container) {
+            container = document.createElement("div");
+            container.id = "toast-container";
+            container.className = "toast-container";
+            document.body.appendChild(container);
+        }
+
+        const toast = document.createElement("div");
+        toast.className = `toast toast-${tipe}`;
+
+        toast.innerHTML = `
+            <span class="toast-dot"></span>
+            <span>${esc(pesan)}</span>
+        `;
+
+        container.appendChild(toast);
+
+        window.setTimeout(() => {
+            toast.style.animation = "toastFadeOut 0.25s forwards";
+            window.setTimeout(() => toast.remove(), 250);
+        }, 3200);
+    }
+
+    // --- 4. CRUD LOGIC & VALIDATION ---
+    layananForm.addEventListener("submit", (e: Event) => {
         e.preventDefault();
         const kode = kodeInput.value.toUpperCase().trim();
         const nama = namaInput.value.trim();
 
         if (!/^[A-Z]$/.test(kode)) {
-            alert("Kode layanan harus persis 1 huruf kapital (A-Z)!");
+            tampilkanToast("Kode layanan harus persis 1 huruf kapital (A-Z)!", "error");
             return;
         }
 
-        // Validasi Duplikasi Case-Insensitive
+        const daftarLayanan = bacaLayanan();
+
+        // Validasi Duplikasi Case-Insensitive (Kode & Nama)
         const isDuplicate = daftarLayanan.some(l =>
             l.kode.toUpperCase() === kode ||
             l.nama.toLowerCase() === nama.toLowerCase()
         );
         if (isDuplicate) {
-            alert("Kode atau nama layanan sudah terdaftar! Gunakan yang lain.");
+            tampilkanToast("Kode atau nama layanan sudah terdaftar! Gunakan nama lain.", "peringatan");
             return;
         }
 
@@ -153,73 +275,75 @@ document.addEventListener("DOMContentLoaded", () => {
         };
 
         daftarLayanan.push(newLayanan);
-        localStorage.setItem("daftarLayanan", JSON.stringify(daftarLayanan));
+        simpanLayanan(daftarLayanan);
 
         kodeInput.value = "";
         namaInput.value = "";
         renderLayanan();
+        tampilkanToast(`Layanan ${nama} [${kode}] berhasil ditambahkan!`, "sukses");
     });
 
-    function toggleLayanan(id: string | null) {
+    function toggleLayanan(id: string | null): void {
         if (!id) return;
-        daftarLayanan = daftarLayanan.map(l => l.id === id ? { ...l, aktif: !l.aktif } : l);
-        localStorage.setItem("daftarLayanan", JSON.stringify(daftarLayanan));
+        const daftarLayanan = bacaLayanan();
+        const diperbarui = daftarLayanan.map(l => l.id === id ? { ...l, aktif: !l.aktif } : l);
+        simpanLayanan(diperbarui);
         renderLayanan();
-    }
-
-    function deleteLayanan(id: string | null) {
-        if (!id) return;
-        if (confirm("Yakin ingin menghapus layanan ini?")) {
-            daftarLayanan = daftarLayanan.filter(l => l.id !== id);
-            localStorage.setItem("daftarLayanan", JSON.stringify(daftarLayanan));
-            renderLayanan();
+        const layananTarget = diperbarui.find(l => l.id === id);
+        if (layananTarget) {
+            tampilkanToast(`Layanan ${layananTarget.nama} telah ${layananTarget.aktif ? "diaktifkan" : "dinonaktifkan"}.`, "sukses");
         }
     }
 
-    // --- 6. TERBITKAN TIKET MANUAL ---
-    tiketManualForm.addEventListener("submit", (e) => {
+    function deleteLayanan(id: string | null): void {
+        if (!id) return;
+        if (confirm("Yakin ingin menghapus layanan ini?")) {
+            const daftarLayanan = bacaLayanan();
+            const tersisa = daftarLayanan.filter(l => l.id !== id);
+            simpanLayanan(tersisa);
+            renderLayanan();
+            tampilkanToast("Layanan berhasil dihapus.", "sukses");
+        }
+    }
+
+    // --- 5. TERBITKAN TIKET MANUAL ---
+    tiketManualForm.addEventListener("submit", (e: Event) => {
         e.preventDefault();
         const kodeLayanan = selectLayanan.value;
         if (!kodeLayanan) {
-            alert("Silakan pilih layanan terlebih dahulu!");
+            tampilkanToast("Silakan pilih layanan terlebih dahulu!", "peringatan");
             return;
         }
         const prioritas = selectPrioritas.value;
         if (!isPrioritas(prioritas)) {
-            alert("Prioritas tidak valid!");
+            tampilkanToast("Tingkat prioritas tidak valid!", "error");
             return;
         }
 
-        // Hitung nomor urut berikutnya berdasarkan kode layanan
-        const existingForService = daftarTiket.filter(t => t.layananKode === kodeLayanan);
-        const nextNumber = existingForService.length + 1;
-        const formattedNumber = String(nextNumber).length === 1 ? `00${nextNumber}` : String(nextNumber).length === 2 ? `0${nextNumber}` : `${nextNumber}`;
-        const nomorTampil = `${kodeLayanan}-${formattedNumber}`;
-
-        const newTiket: Tiket = {
-            id: Date.now().toString(),
-            layananKode: kodeLayanan,
-            nomorUrut: nextNumber,
-            nomorTampil: nomorTampil,
-            prioritas: prioritas,
-            status: "Menunggu",
-            waktu: new Date().toLocaleTimeString()
-        };
-
-        daftarTiket.push(newTiket);
-        localStorage.setItem("daftarTiket", JSON.stringify(daftarTiket));
+        // Menggunakan fungsi inti terbitkanTiket dari queue.ts agar format dan penomoran konsisten
+        const tiketBaru = terbitkanTiket(kodeLayanan, prioritas);
         renderTiket();
-        alert(`Berhasil menerbitkan tiket manual: ${nomorTampil}`);
+        tampilkanToast(`Berhasil menerbitkan tiket manual: ${tiketBaru.nomorTampil} (${prioritas})`, "sukses");
     });
 
-    // --- 7. RESET SELURUH ANTRIAN ---
+    // --- 6. RESET SELURUH ANTRIAN ---
     resetAllBtn.addEventListener("click", () => {
         if (confirm("PERINGATAN: Apakah Anda yakin ingin mereset seluruh data antrian aktif?")) {
-            daftarTiket = [];
-            localStorage.setItem("daftarTiket", JSON.stringify(daftarTiket));
+            resetAntrian();
             renderTiket();
-            alert("Semua data antrian berhasil direset.");
+            tampilkanToast("Semua data antrian berhasil direset ke awal.", "sukses");
         }
+    });
+
+    // --- 7. AUTO-POLLING & STORAGE EVENT SINKRONISASI ---
+    window.setInterval(() => {
+        renderLayanan();
+        renderTiket();
+    }, 2000);
+
+    window.addEventListener("storage", (e: StorageEvent) => {
+        if (e.key === KUNCI_LAYANAN) renderLayanan();
+        if (e.key === KUNCI_TIKET) renderTiket();
     });
 
     // Initial Render on Load

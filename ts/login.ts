@@ -35,7 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
         togglePasswordBtn.addEventListener("click", () => {
             const type = passwordInput.getAttribute("type") === "password" ? "text" : "password";
             passwordInput.setAttribute("type", type);
-            togglePasswordBtn.textContent = type === "password" ? "👁️" : "🙈";
+            togglePasswordBtn.textContent = type === "password" ? "Lihat" : "Sembunyi";
         });
     }
     

@@ -8,9 +8,16 @@
 </head>
 <body>
     <header class="navbar">
-        <h2>Dashboard Admin</h2>
+        <div style="display: flex; align-items: center; gap: 1.25rem;">
+            <h2>Dashboard Admin</h2>
+            <nav class="admin-quick-nav">
+                <a href="layar.html" target="_blank" title="Buka Layar Monitor Antrian">Layar Monitor</a>
+                <a href="ambil-antrian.html" target="_blank" title="Buka Mesin Kiosk Tiket">Kiosk Tiket</a>
+                <a href="operator.html" target="_blank" title="Buka Panel Operator Antrian">Panel Operator</a>
+            </nav>
+        </div>
         <div class="user-info">
-            <span id="admin-name" style="margin-right: 1rem; font-weight: 600;">Admin</span>
+            <span id="admin-name" style="margin-right: 0.5rem; font-weight: 600;">Admin</span>
             <button id="logout-btn">Keluar</button>
         </div>
     </header>
@@ -20,26 +27,28 @@
         <section id="jenis-antrian-section">
             <h3>Manajemen Layanan (CRUD)</h3>
             <form id="layanan-form">
-                <div>
-                    <label for="kode-layanan">Kode (1 Huruf Kapital)</label>
-                    <input type="text" id="kode-layanan" maxlength="1" placeholder="C" style="text-transform: uppercase;" required>
+                <div class="admin-form-row">
+                    <div>
+                        <label for="kode-layanan">Kode (A-Z)</label>
+                        <input type="text" id="kode-layanan" maxlength="1" placeholder="C" style="text-transform: uppercase; text-align: center; font-weight: 700;" required>
+                    </div>
+                    <div>
+                        <label for="nama-layanan">Nama Layanan</label>
+                        <input type="text" id="nama-layanan" placeholder="Contoh: Poli Gigi" required>
+                    </div>
                 </div>
-                <div>
-                    <label for="nama-layanan">Nama Layanan</label>
-                    <input type="text" id="nama-layanan" placeholder="Contoh: Poli Gigi" required>
-                </div>
-                <button type="submit" id="save-layanan-btn">Tambah Layanan</button>
+                <button type="submit" id="save-layanan-btn" style="width: 100%;">+ Tambah Layanan</button>
             </form>
 
-            <div style="margin-top: 1.5rem;">
-                <h4>Daftar Layanan Aktif</h4>
-                <div id="list-layanan-container" style="margin-top: 0.75rem; display: flex; flex-direction: column; gap: 0.5rem;">
+            <div style="margin-top: 1.75rem; flex: 1; display: flex; flex-direction: column;">
+                <h4>Daftar Layanan</h4>
+                <div id="list-layanan-container" style="margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.5rem; max-height: 280px; overflow-y: auto;">
                     <!-- Render list via TypeScript -->
                 </div>
             </div>
             
-            <div style="margin-top: 2rem; border-top: 1px dashed var(--accent-peach); padding-top: 1rem;">
-                <button type="button" id="reset-all-btn" style="background-color: var(--danger); color: white; width: 100%;">Reset Seluruh Antrian</button>
+            <div style="margin-top: 1.5rem; border-top: 1px dashed var(--card-border); padding-top: 1rem;">
+                <button type="button" id="reset-all-btn">Reset Seluruh Antrian</button>
             </div>
         </section>
 
@@ -62,12 +71,12 @@
                         <option value="VIP">VIP</option>
                     </select>
                 </div>
-                <button type="submit" id="terbitkan-btn">Terbitkan Tiket</button>
+                <button type="submit" id="terbitkan-btn" style="width: 100%;">Terbitkan Tiket</button>
             </form>
 
-            <div style="margin-top: 1.5rem;">
-                <h4>Daftar Tiket Aktif</h4>
-                <div id="list-tiket-container" style="max-height: 220px; overflow-y: auto; margin-top: 0.75rem; display: flex; flex-direction: column; gap: 0.5rem;">
+            <div style="margin-top: 1.75rem; flex: 1; display: flex; flex-direction: column;">
+                <h4>Daftar Tiket Aktif (10 Terakhir)</h4>
+                <div id="list-tiket-container" style="max-height: 280px; overflow-y: auto; margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.5rem;">
                     <!-- Render tiket via TypeScript -->
                 </div>
             </div>
