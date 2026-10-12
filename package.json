@@ -1,0 +1,16 @@
+{
+  "name": "antrian-rs",
+  "version": "1.0.0",
+  "description": "Sistem Antrian Rumah Sakit Native TypeScript",
+  "main": "js/login.js",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch"
+  },
+  "keywords": ["typescript", "native", "queue-system"],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
