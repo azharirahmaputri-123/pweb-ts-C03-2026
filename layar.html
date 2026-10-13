@@ -7,16 +7,78 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <header class="public-header">
-        <div class="header-info">
-            <h1>Nomor sedang dipanggil</h1>
-            <p id="timestamp-info" class="timestamp-text">Diperbarui --.--.--</p>
+    <header class="app-header">
+        <!-- ZONA KIRI: Identitas & Judul Halaman -->
+        <div class="header-brand-zone">
+            <div class="brand-logo-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 6v12M6 12h12"/>
+                </svg>
+            </div>
+            <div class="header-titles">
+                <span class="header-app-name">RS Medika Antrian</span>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <h1 class="header-page-title">Nomor Sedang Dipanggil</h1>
+                    <span id="timestamp-info" class="timestamp-text">Diperbarui --.--.--</span>
+                </div>
+            </div>
         </div>
-        <div class="nav-links">
-            <a href="layar.html" class="active">Layar Antrian</a>
-            <a href="ambil-antrian.html">Ambil Nomor</a>
-            <button id="fullscreen-btn" type="button">Layar Penuh</button>
-            <a href="login.html" class="nav-staff-link" title="Masuk Staf/Admin">Akses Staf</a>
+
+        <!-- ZONA TENGAH: Segmented Navigasi Utama -->
+        <nav class="header-segmented-nav" aria-label="Navigasi Halaman Utama">
+            <a href="ambil-antrian.html" class="nav-tab-item">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="4" width="20" height="16" rx="2"/>
+                    <path d="M7 15h0M2 9h20"/>
+                </svg>
+                <span>Ambil Nomor</span>
+            </a>
+            <a href="layar.html" class="nav-tab-item active">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="3" width="20" height="14" rx="2"/>
+                    <line x1="8" y1="21" x2="16" y2="21"/>
+                    <line x1="12" y1="17" x2="12" y2="21"/>
+                </svg>
+                <span>Layar Antrian</span>
+            </a>
+        </nav>
+
+        <!-- ZONA KANAN: Tools, Staf Nav, Profil & Logout -->
+        <div class="header-actions-zone">
+            <div id="staff-nav-group" class="staff-nav-group" style="display: none;">
+                <span class="staff-group-label">Staf:</span>
+                <a href="index.html" class="staff-link" title="Buka Dashboard Admin">Admin</a>
+                <a href="operator.html" class="staff-link" title="Buka Panel Operator">Operator</a>
+            </div>
+
+            <button id="fullscreen-btn" type="button" class="btn-tool-fullscreen" title="Beralih Tampilan Penuh">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 3 21 3 21 9"/>
+                    <polyline points="9 21 3 21 3 15"/>
+                    <line x1="21" y1="3" x2="14" y2="10"/>
+                    <line x1="3" y1="21" x2="10" y2="14"/>
+                </svg>
+                <span id="fullscreen-label">Layar Penuh</span>
+            </button>
+
+            <div class="header-divider"></div>
+
+            <div class="user-profile-chip">
+                <div class="user-avatar" id="user-avatar-initial">U</div>
+                <div class="user-details">
+                    <strong class="user-name-text" id="layar-user-name">Pengguna</strong>
+                    <span class="user-role-badge" id="layar-user-role">USER</span>
+                </div>
+            </div>
+
+            <button id="logout-btn" type="button" class="btn-header-logout" title="Keluar dari sesi akun">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                    <polyline points="16 17 21 12 16 7"/>
+                    <line x1="21" y1="12" x2="9" y2="12"/>
+                </svg>
+                <span>Keluar</span>
+            </button>
         </div>
     </header>
 

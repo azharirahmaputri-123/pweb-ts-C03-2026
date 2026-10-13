@@ -9,6 +9,38 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 document.addEventListener("DOMContentLoaded", () => {
+    // --- 0. AUTH GUARD (REVISI SOAL: WAJIB LOGIN UNTUK SEMUA AKSES) ---
+    const token = localStorage.getItem("accessToken");
+    const role = localStorage.getItem("userRole");
+    if (!token) {
+        tampilkanModalAksesDitolak("Sesi login Anda tidak ditemukan atau telah kedaluwarsa.", "Sesuai regulasi terbaru, Anda harus masuk (login) terlebih dahulu untuk mengambil nomor tiket antrian.", "login.html", "Ke Halaman Login Sekarang");
+        return;
+    }
+    // Tampilkan info akun pengguna & tautan staf jika admin
+    const firstName = localStorage.getItem("firstName") || "Pengguna";
+    const userRole = (role || "user").toUpperCase();
+    const userNameEl = document.getElementById("kiosk-user-name");
+    const userRoleEl = document.getElementById("kiosk-user-role");
+    const userAvatarEl = document.getElementById("user-avatar-initial");
+    if (userNameEl)
+        userNameEl.textContent = firstName;
+    if (userRoleEl)
+        userRoleEl.textContent = userRole;
+    if (userAvatarEl)
+        userAvatarEl.textContent = firstName.charAt(0).toUpperCase();
+    if (role === "admin" || role === "moderator") {
+        const staffNav = document.getElementById("staff-nav-group");
+        if (staffNav)
+            staffNav.style.display = "inline-flex";
+    }
+    // Tombol Logout
+    const logoutBtn = document.getElementById("logout-btn");
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", () => {
+            ["accessToken", "userRole", "firstName"].forEach(k => localStorage.removeItem(k));
+            window.location.href = "login.html";
+        });
+    }
     const kioskContainer = document.getElementById("kiosk-container");
     const fullscreenBtn = document.getElementById("fullscreen-btn");
     const modalContainer = document.getElementById("ticket-modal-container");
@@ -30,11 +62,18 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }));
         document.addEventListener("fullscreenchange", () => {
+            const labelEl = document.getElementById("fullscreen-label");
             if (document.fullscreenElement) {
-                fullscreenBtn.textContent = "Keluar Layar Penuh";
+                if (labelEl)
+                    labelEl.textContent = "Keluar Penuh";
+                else
+                    fullscreenBtn.textContent = "Keluar Layar Penuh";
             }
             else {
-                fullscreenBtn.textContent = "Layar Penuh";
+                if (labelEl)
+                    labelEl.textContent = "Layar Penuh";
+                else
+                    fullscreenBtn.textContent = "Layar Penuh";
             }
         });
     }
@@ -182,28 +221,36 @@ document.addEventListener("DOMContentLoaded", () => {
             card.appendChild(header);
             // Container Tombol Ambil Nomor
             const actions = document.createElement("div");
-            // Tombol Utama: Ambil Nomor (Normal)
+            // Tombol Utama: Ambil Nomor Reguler
             const btnNormal = document.createElement("button");
             btnNormal.type = "button";
             btnNormal.className = "btn-ambil-normal";
-            btnNormal.textContent = "Ambil Nomor";
+            btnNormal.innerHTML = `
+                <span class="btn-main-text">Ambil Tiket Reguler</span>
+                <span class="btn-sub-label">Pasien Umum</span>
+            `;
             btnNormal.addEventListener("click", () => ambilTiket(layanan, "Normal"));
             actions.appendChild(btnNormal);
-            // Label Opsi Prioritas
-            const priorityLabel = document.createElement("div");
-            priorityLabel.className = "kiosk-priority-label";
-            priorityLabel.textContent = "▾ Ambil dengan prioritas";
-            actions.appendChild(priorityLabel);
+            // Divider Pemisah Opsi Khusus (tanpa panah membingungkan)
+            const priorityDivider = document.createElement("div");
+            priorityDivider.className = "kiosk-priority-divider";
+            priorityDivider.innerHTML = `<span>Jalur Prioritas Khusus</span>`;
+            actions.appendChild(priorityDivider);
             // Grid Tombol Prioritas: Lansia, Disabilitas, VIP
             const priorityGrid = document.createElement("div");
             priorityGrid.className = "kiosk-priority-grid";
-            const opsiPrioritas = ["Lansia", "Disabilitas", "VIP"];
-            opsiPrioritas.forEach(prio => {
+            const opsiPrioritas = [
+                { nama: "Lansia", label: "Lansia", kelas: "prio-lansia" },
+                { nama: "Disabilitas", label: "Disabilitas", kelas: "prio-disabilitas" },
+                { nama: "VIP", label: "VIP", kelas: "prio-vip" }
+            ];
+            opsiPrioritas.forEach(opt => {
                 const btnPrio = document.createElement("button");
                 btnPrio.type = "button";
-                btnPrio.className = "btn-ambil-prioritas";
-                btnPrio.textContent = prio;
-                btnPrio.addEventListener("click", () => ambilTiket(layanan, prio));
+                btnPrio.className = `btn-ambil-prioritas ${opt.kelas}`;
+                btnPrio.textContent = opt.label;
+                btnPrio.title = `Ambil tiket jalur prioritas ${opt.nama}`;
+                btnPrio.addEventListener("click", () => ambilTiket(layanan, opt.nama));
                 priorityGrid.appendChild(btnPrio);
             });
             actions.appendChild(priorityGrid);

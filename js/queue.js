@@ -168,3 +168,91 @@ function ubahStatusDipanggil(kode, statusBaru) {
         simpanTiket(baru);
     return berubah;
 }
+/* ==========================================
+   AUTH & ROLE GUARD POP-UP MODAL (GLOBAL)
+   ========================================== */
+function tampilkanModalAksesDitolak(alasan, subteks, redirectUrl = "login.html", labelTombol = "Ke Halaman Login Sekarang", opsiLain) {
+    // Sembunyikan konten halaman utama agar data dan form tidak terlihat oleh pihak tak berwenang
+    const sembunyikanSelector = [
+        ".admin-grid",
+        "#operator-panels-container",
+        "#kiosk-container",
+        "#display-container",
+        ".navbar",
+        ".public-header"
+    ];
+    sembunyikanSelector.forEach(sel => {
+        const el = document.querySelector(sel);
+        if (el)
+            el.style.display = "none";
+    });
+    if (document.getElementById("auth-modal-denied"))
+        return;
+    const overlay = document.createElement("div");
+    overlay.className = "auth-modal-overlay";
+    overlay.id = "auth-modal-denied";
+    overlay.setAttribute("role", "alertdialog");
+    overlay.setAttribute("aria-modal", "true");
+    let sisaWaktu = 3;
+    overlay.innerHTML = `
+        <div class="auth-modal-card">
+            <div class="auth-modal-icon-badge" aria-hidden="true">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+            </div>
+            <span class="auth-modal-pill">Autentikasi Diperlukan</span>
+            <h2 class="auth-modal-title">Akses Ditolak</h2>
+            <p class="auth-modal-desc">${esc(alasan)}</p>
+            <p class="auth-modal-subdesc">${esc(subteks)}</p>
+
+            <div class="auth-modal-countdown-box">
+                <div class="auth-modal-countdown-label">
+                    <span>Mengalihkan otomatis</span>
+                    <strong id="auth-countdown-sec">${sisaWaktu} detik</strong>
+                </div>
+                <div class="auth-countdown-track">
+                    <div class="auth-countdown-bar"></div>
+                </div>
+            </div>
+
+            <div class="auth-modal-actions">
+                <button type="button" id="btn-auth-redirect-login" class="btn-auth-redirect">
+                    ${esc(labelTombol)}
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                </button>
+                ${opsiLain ? `
+                <a href="${esc(opsiLain.url)}" class="btn-auth-secondary">
+                    ${esc(opsiLain.label)}
+                </a>
+                ` : ""}
+            </div>
+        </div>
+    `;
+    document.body.appendChild(overlay);
+    const redirect = () => {
+        window.location.href = redirectUrl;
+    };
+    const countdownEl = document.getElementById("auth-countdown-sec");
+    const timerId = window.setInterval(() => {
+        sisaWaktu--;
+        if (countdownEl) {
+            countdownEl.textContent = `${sisaWaktu} detik`;
+        }
+        if (sisaWaktu <= 0) {
+            clearInterval(timerId);
+            redirect();
+        }
+    }, 1000);
+    const btnRedirect = document.getElementById("btn-auth-redirect-login");
+    if (btnRedirect) {
+        btnRedirect.addEventListener("click", () => {
+            clearInterval(timerId);
+            redirect();
+        });
+    }
+}

@@ -18,7 +18,7 @@ function redirectByRole(role: string): void {
     if (role === "admin" || role === "moderator") {
         window.location.href = "index.html";
     } else {
-        window.location.href = "operator.html";
+        window.location.href = "ambil-antrian.html";
     }
 }
 

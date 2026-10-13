@@ -1,4 +1,44 @@
 document.addEventListener("DOMContentLoaded", () => {
+    // --- 0. AUTH GUARD (REVISI SOAL: WAJIB LOGIN UNTUK SEMUA AKSES) ---
+    const token = localStorage.getItem("accessToken");
+    const role = localStorage.getItem("userRole");
+
+    if (!token) {
+        tampilkanModalAksesDitolak(
+            "Sesi login Anda tidak ditemukan atau telah kedaluwarsa.",
+            "Sesuai regulasi terbaru, Anda harus masuk (login) terlebih dahulu untuk memantau layar antrian.",
+            "login.html",
+            "Ke Halaman Login Sekarang"
+        );
+        return;
+    }
+
+    // Tampilkan info akun pengguna & tautan staf jika admin
+    const firstName = localStorage.getItem("firstName") || "Pengguna";
+    const userRole = (role || "user").toUpperCase();
+
+    const userNameEl = document.getElementById("layar-user-name");
+    const userRoleEl = document.getElementById("layar-user-role");
+    const userAvatarEl = document.getElementById("user-avatar-initial");
+
+    if (userNameEl) userNameEl.textContent = firstName;
+    if (userRoleEl) userRoleEl.textContent = userRole;
+    if (userAvatarEl) userAvatarEl.textContent = firstName.charAt(0).toUpperCase();
+
+    if (role === "admin" || role === "moderator") {
+        const staffNav = document.getElementById("staff-nav-group");
+        if (staffNav) staffNav.style.display = "inline-flex";
+    }
+
+    // Tombol Logout
+    const logoutBtn = document.getElementById("logout-btn");
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", () => {
+            ["accessToken", "userRole", "firstName"].forEach(k => localStorage.removeItem(k));
+            window.location.href = "login.html";
+        });
+    }
+
     const displayContainer = document.getElementById("display-container") as HTMLElement | null;
     const fullscreenBtn = document.getElementById("fullscreen-btn") as HTMLButtonElement | null;
     const timestampInfo = document.getElementById("timestamp-info") as HTMLElement | null;
@@ -21,10 +61,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Sinkronisasi status tampilan penuh saat user tekan Esc atau klik tombol
         document.addEventListener("fullscreenchange", () => {
+            const labelEl = document.getElementById("fullscreen-label");
             if (document.fullscreenElement) {
-                fullscreenBtn.textContent = "Keluar Layar Penuh";
+                if (labelEl) labelEl.textContent = "Keluar Penuh";
+                else fullscreenBtn.textContent = "Keluar Layar Penuh";
             } else {
-                fullscreenBtn.textContent = "Layar Penuh";
+                if (labelEl) labelEl.textContent = "Layar Penuh";
+                else fullscreenBtn.textContent = "Layar Penuh";
             }
         });
     }

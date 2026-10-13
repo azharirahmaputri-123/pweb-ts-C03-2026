@@ -13,7 +13,7 @@ function redirectByRole(role) {
         window.location.href = "index.html";
     }
     else {
-        window.location.href = "operator.html";
+        window.location.href = "ambil-antrian.html";
     }
 }
 document.addEventListener("DOMContentLoaded", () => {

@@ -3,108 +3,36 @@ document.addEventListener("DOMContentLoaded", () => {
     const token = localStorage.getItem("accessToken");
     const role = localStorage.getItem("userRole");
 
-    if (!token || (role !== "admin" && role !== "moderator")) {
-        tampilkanModalAksesDitolak(token, role);
+    if (!token) {
+        tampilkanModalAksesDitolak(
+            "Sesi login Anda tidak ditemukan atau telah kedaluwarsa.",
+            "Anda harus masuk dengan kredensial Administrator atau Moderator untuk mengelola sistem antrian.",
+            "login.html",
+            "Ke Halaman Login Sekarang"
+        );
         return;
     }
 
-    function tampilkanModalAksesDitolak(authToken: string | null, userRole: string | null): void {
-        // Sembunyikan konten admin dan navbar agar data terlindungi dari pengguna yang tidak berhak
-        const adminGrid = document.querySelector(".admin-grid") as HTMLElement | null;
-        if (adminGrid) adminGrid.style.display = "none";
-        const navbar = document.querySelector(".navbar") as HTMLElement | null;
-        if (navbar) navbar.style.display = "none";
-
-        let alasan = "Sesi login Anda tidak ditemukan atau telah kedaluwarsa.";
-        let subteks = "Anda harus masuk dengan kredensial Administrator atau Moderator untuk mengelola sistem antrian.";
-        const isOperator = !!authToken && userRole === "user";
-
-        if (authToken && userRole) {
-            alasan = `Akun Anda terdaftar dengan hak akses "${userRole.toUpperCase()}".`;
-            subteks = "Halaman Dashboard Admin hanya dapat diakses oleh Administrator atau Moderator Rumah Sakit.";
-        }
-
-        const overlay = document.createElement("div");
-        overlay.className = "auth-modal-overlay";
-        overlay.id = "auth-modal-denied";
-        overlay.setAttribute("role", "alertdialog");
-        overlay.setAttribute("aria-modal", "true");
-
-        let sisaWaktu = 3;
-
-        overlay.innerHTML = `
-            <div class="auth-modal-card">
-                <div class="auth-modal-icon-badge" aria-hidden="true">
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                    </svg>
-                </div>
-                <span class="auth-modal-pill">Autentikasi Diperlukan</span>
-                <h2 class="auth-modal-title">Akses Ditolak</h2>
-                <p class="auth-modal-desc">${esc(alasan)}</p>
-                <p class="auth-modal-subdesc">${esc(subteks)}</p>
-
-                <div class="auth-modal-countdown-box">
-                    <div class="auth-modal-countdown-label">
-                        <span>Mengalihkan otomatis ke login</span>
-                        <strong id="auth-countdown-sec">${sisaWaktu} detik</strong>
-                    </div>
-                    <div class="auth-countdown-track">
-                        <div class="auth-countdown-bar"></div>
-                    </div>
-                </div>
-
-                <div class="auth-modal-actions">
-                    <button type="button" id="btn-auth-redirect-login" class="btn-auth-redirect">
-                        Ke Halaman Login Sekarang
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="5" y1="12" x2="19" y2="12"></line>
-                            <polyline points="12 5 19 12 12 19"></polyline>
-                        </svg>
-                    </button>
-                    ${isOperator ? `
-                    <a href="operator.html" class="btn-auth-secondary">
-                        Buka Panel Operator
-                    </a>
-                    ` : ""}
-                </div>
-            </div>
-        `;
-
-        document.body.appendChild(overlay);
-
-        const redirectKeLogin = () => {
-            window.location.href = "login.html";
-        };
-
-        const countdownEl = document.getElementById("auth-countdown-sec");
-        const timerId = window.setInterval(() => {
-            sisaWaktu--;
-            if (countdownEl) {
-                countdownEl.textContent = `${sisaWaktu} detik`;
-            }
-            if (sisaWaktu <= 0) {
-                clearInterval(timerId);
-                redirectKeLogin();
-            }
-        }, 1000);
-
-        const btnRedirect = document.getElementById("btn-auth-redirect-login");
-        if (btnRedirect) {
-            btnRedirect.addEventListener("click", () => {
-                clearInterval(timerId);
-                redirectKeLogin();
-            });
-        }
+    if (role !== "admin" && role !== "moderator") {
+        tampilkanModalAksesDitolak(
+            `Akun Anda terdaftar dengan hak akses "${(role || "user").toUpperCase()}".`,
+            "Halaman Dashboard Admin hanya dapat diakses oleh Administrator atau Moderator Rumah Sakit.",
+            "ambil-antrian.html",
+            "Buka Halaman Ambil Antrian",
+            { url: "login.html", label: "Login Akun Lain" }
+        );
+        return;
     }
 
-    // Tampilkan nama admin di navbar
+    // Tampilkan profil admin di navbar
     const adminNameSpan = document.getElementById("admin-name");
+    const adminRoleSpan = document.getElementById("admin-role");
+    const adminAvatarSpan = document.getElementById("user-avatar-initial");
     const firstName = localStorage.getItem("firstName") || "Admin";
-    if (adminNameSpan) {
-        adminNameSpan.textContent = `${firstName} (${role.toUpperCase()})`;
-    }
+
+    if (adminNameSpan) adminNameSpan.textContent = firstName;
+    if (adminRoleSpan) adminRoleSpan.textContent = (role || "ADMIN").toUpperCase();
+    if (adminAvatarSpan) adminAvatarSpan.textContent = firstName.charAt(0).toUpperCase();
 
     // Tombol Logout
     const logoutBtn = document.getElementById("logout-btn");

@@ -16,7 +16,7 @@
                     </svg>
                 </div>
                 <h1>Masuk Sistem</h1>
-                <p class="login-subtitle">Halaman ini untuk mengakses Dashboard Admin dan Panel Operator. Layar Kiosk dan Monitor Antrian dapat diakses langsung tanpa login.</p>
+                <p class="login-subtitle">Silakan masuk untuk mengakses Sistem Antrian Rumah Sakit. Seluruh layanan memerlukan autentikasi akun.</p>
             </div>
             <form id="login-form">
                 <div>
@@ -37,30 +37,23 @@
             <p id="error-message" class="error"></p>
             
             <div class="login-security-note">
-                Akses sistem terbatas untuk staf medis dan administrator berwenang.
+                Sesuai ketentuan revisi, seluruh modul sistem (termasuk Ambil Antrian & Layar) wajib terotentikasi.
             </div>
 
-            <details class="demo-acc-details">
-                <summary>Petunjuk Referensi Pengujian API</summary>
-                <p>Otentikasi terintegrasi dengan <a href="https://dummyjson.com/users" target="_blank" rel="noopener">DummyJSON Auth Service</a>.</p>
-            </details>
-
-            <!-- Portal Cepat Akses Publik (Tanpa Login) -->
+            <!-- Petunjuk Role Sesuai Ketentuan Revisi Soal -->
             <div class="public-portal-box">
-                <p class="public-portal-title">Akses Layanan Publik (Tanpa Perlu Login):</p>
-                <div class="public-portal-links">
-                    <a href="ambil-antrian.html" class="portal-btn">
-                        <div>
-                            <strong>Ambil Antrian</strong>
-                            <small>Mesin Kiosk Pasien</small>
-                        </div>
-                    </a>
-                    <a href="layar.html" class="portal-btn">
-                        <div>
-                            <strong>Layar Monitor</strong>
-                            <small>Display Ruang Tunggu</small>
-                        </div>
-                    </a>
+                <p class="public-portal-title">Panduan Hak Akses Pengujian Akun (DummyJSON):</p>
+                <div class="role-guide-grid">
+                    <div class="role-guide-card">
+                        <span class="badge-role-admin">Admin / Moderator</span>
+                        <p class="role-guide-desc">Akses penuh: Dashboard Admin, Panel Operator, Kiosk Ambil Antrian, dan Layar Monitor.</p>
+                        <small class="role-guide-sample">Contoh: <code>emilys</code> (kata sandi: <code>emilyspass</code>)</small>
+                    </div>
+                    <div class="role-guide-card">
+                        <span class="badge-role-user">User (Pengunjung)</span>
+                        <p class="role-guide-desc">Akses terbatas: Kiosk Ambil Antrian dan Layar Monitor Antrian.</p>
+                        <small class="role-guide-sample">Contoh: <code>averyp</code> (kata sandi: <code>averyppass</code>)</small>
+                    </div>
                 </div>
             </div>
         </main>
